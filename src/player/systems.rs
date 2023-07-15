@@ -24,7 +24,8 @@ pub fn spawn_player(
             ..default()
         },
         Player,
-        Velocity(Vec2::ZERO)
+        Velocity(Vec2::ZERO),
+        GunType::Pistol.new()
     ));
 }
 
@@ -51,19 +52,32 @@ pub fn handle_movement(
 }
 
 pub fn handle_shooting(
-    player_query: Query<&Transform, With<Player>>,
+    player_query: Query<(Entity, &Transform, &Gun), With<Player>>,
     buttons: Res<Input<MouseButton>>,
     cursor_pos: Res<CursorPosition>,
     mut event: EventWriter<SpawnBulletEvent>
 ) {
-    if !buttons.just_pressed(MouseButton::Left) { return }
+    if !(buttons.just_pressed(MouseButton::Left) || buttons.just_pressed(MouseButton::Right)) { return; }
 
-    let player_transform = player_query.single();
+    let (player_entity, player_transform, player_gun) = player_query.single();
     let player_pos = player_transform.translation.truncate();
     let diff_pos = (cursor_pos.0 - player_pos).normalize();
 
     event.send(SpawnBulletEvent {
         position: player_pos,
         direction: diff_pos,
+        gun_stats: player_gun.gun_stats,
+        owner: player_entity,
+        is_primary: buttons.just_pressed(MouseButton::Left)
     });
+}
+
+pub fn camera_follow_player(
+    player_query: Query<&Transform, With<Player>>,
+    mut camera_query: Query<&mut Transform, (With<PlayerCamera>, Without<Player>)>
+) {
+    let player_transform = player_query.single();
+    let mut camera_transform = camera_query.single_mut();
+    camera_transform.translation = player_transform.translation;
+    camera_transform.translation.z = 999.9;
 }

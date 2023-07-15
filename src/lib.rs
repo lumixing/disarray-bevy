@@ -3,6 +3,8 @@ use bevy::prelude::*;
 mod player;
 mod physics;
 mod bullet;
+mod debug;
+mod enemy;
 
 pub fn app() -> App {
     let mut app = App::new();
@@ -25,6 +27,8 @@ pub fn app() -> App {
         player::PlayerPlugin,
         physics::PhysicsPlugin,
         bullet::BulletPlugin,
+        debug::DebugPlugin,
+        enemy::EnemyPlugin,
     ));
 
     app.add_systems(Update, bevy::window::close_on_esc);

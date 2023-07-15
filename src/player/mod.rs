@@ -15,6 +15,7 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Update, (
             systems::handle_movement,
             systems::handle_shooting,
+            systems::camera_follow_player
         ));
     }
 }
